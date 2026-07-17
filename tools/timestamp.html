@@ -4,38 +4,181 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Unix时间戳 - 万能工具箱</title>
+<title>Unix时间戳工具 - 万能工具箱</title>
 <style>
-:root{--bg:#f5f7fa;--bg2:#ffffff;--ink:#1a1a2e;--muted:#6b7280;--rule:#e5e7eb;--accent:#4f46e5;--accent2:#06b6d4}
+:root{--bg:#f5f7fa;--bg2:#fff;--ink:#1a1a2e;--muted:#6b7280;--rule:#e5e7eb;--accent:#4f46e5;--accent2:#06b6d4}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
-header{background:var(--bg2);border-bottom:1px solid var(--rule);padding:0 24px;height:56px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-header a{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-size:18px;font-weight:600}
-header svg{width:32px;height:32px;flex-shrink:0}
-main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
-.card{text-align:center;max-width:420px;width:100%}
-.card .icon{font-size:64px;margin-bottom:24px}
-.card h1{font-size:28px;font-weight:700;margin-bottom:12px}
-.card p{color:var(--muted);font-size:16px;line-height:1.6;margin-bottom:32px}
-.btn{display:inline-block;padding:12px 28px;background:var(--accent);color:#fff;border-radius:8px;text-decoration:none;font-size:15px;font-weight:500;transition:background .2s}
-.btn:hover{background:#4338ca}
-@media(max-width:480px){.card h1{font-size:22px}.card .icon{font-size:48px}}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+header{background:var(--bg2);border-bottom:1px solid var(--rule);padding:12px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100}
+header a{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);font-weight:600;font-size:16px}
+header svg{width:28px;height:28px;flex-shrink:0}
+main{max-width:640px;margin:0 auto;padding:24px 16px}
+.card{background:var(--bg2);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card h2{font-size:15px;font-weight:600;margin-bottom:14px;color:var(--ink)}
+.live-box{text-align:center;padding:20px 0}
+.live-box .ts-display{font-size:36px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent);letter-spacing:1px;cursor:pointer;transition:color .2s}
+.live-box .ts-display:hover{color:var(--accent2)}
+.live-box .ts-unit{font-size:13px;color:var(--muted);margin-top:4px}
+.live-box .dt-display{font-size:14px;color:var(--muted);margin-top:8px}
+.toggle-row{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.toggle-row button{padding:6px 16px;border-radius:6px;border:1px solid var(--rule);background:var(--bg);color:var(--muted);font-size:13px;cursor:pointer;transition:all .2s}
+.toggle-row button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-row{display:flex;gap:8px;margin-top:12px;justify-content:center}
+.btn{padding:8px 18px;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{opacity:.9}
+.btn-secondary{background:var(--bg);color:var(--ink);border:1px solid var(--rule)}
+.btn-secondary:hover{background:var(--rule)}
+.input-group{display:flex;gap:8px;align-items:stretch}
+.input-group input{flex:1;padding:10px 12px;border:1px solid var(--rule);border-radius:8px;font-size:14px;background:var(--bg);color:var(--ink);outline:none;transition:border-color .2s}
+.input-group input:focus{border-color:var(--accent)}
+.input-group .btn{white-space:nowrap;flex-shrink:0}
+.result{margin-top:12px;padding:12px;background:var(--bg);border-radius:8px;font-size:14px;word-break:break-all;min-height:42px;color:var(--ink)}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#333;color:#fff;padding:8px 20px;border-radius:8px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.datetime-inputs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.datetime-inputs input{flex:1;min-width:80px;padding:10px 12px;border:1px solid var(--rule);border-radius:8px;font-size:14px;background:var(--bg);color:var(--ink);outline:none}
+.datetime-inputs input:focus{border-color:var(--accent)}
+.copy-hint{font-size:12px;color:var(--muted);margin-top:4px;text-align:center}
+@media(max-width:480px){.live-box .ts-display{font-size:26px}.card{padding:16px}}
 </style>
 </head>
 <body>
 <header>
-  <a href="../index.html">
-    <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#4f46e5"/><path d="M8 12h4v4H8zm6 0h4v4h-4zm6 0h4v4h-4zM8 18h4v4H8zm6 0h4v4h-4zm6 0h4v4h-4z" fill="#fff"/></svg>
-    万能工具箱
-  </a>
+<a href="../index.html">
+<svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#4f46e5"/><path d="M8 12h4v4H8zm6 0h4v4h-4zm6 0h4v4h-4zM8 18h4v4H8zm6 0h4v4h-4zm6 0h4v4h-4z" fill="#fff"/></svg>
+万能工具箱
+</a>
 </header>
 <main>
-  <div class="card">
-    <div class="icon">🚀</div>
-    <h1>即将上线</h1>
-    <p>Unix时间戳该工具正在开发中，敬请期待...</p>
-    <a class="btn" href="../index.html">返回首页</a>
-  </div>
+<!-- 实时时间戳 -->
+<div class="card">
+<h2>当前时间戳（实时）</h2>
+<div class="live-box">
+<div class="ts-display" id="liveTs" title="点击复制"></div>
+<div class="ts-unit" id="liveUnit">秒级（10位）</div>
+<div class="dt-display" id="liveDt"></div>
+</div>
+<div class="toggle-row">
+<button class="active" onclick="setUnit('s')">秒级</button>
+<button onclick="setUnit('ms')">毫秒级</button>
+</div>
+<div class="copy-hint">点击时间戳可一键复制</div>
+</div>
+
+<!-- 时间戳 → 日期 -->
+<div class="card">
+<h2>时间戳 → 日期时间</h2>
+<div class="input-group">
+<input type="text" id="ts2dateInput" placeholder="输入时间戳（秒/毫秒）">
+<button class="btn btn-primary" onclick="ts2date()">转换</button>
+</div>
+<div class="result" id="ts2dateResult" style="display:none"></div>
+</div>
+
+<!-- 日期 → 时间戳 -->
+<div class="card">
+<h2>日期时间 → 时间戳</h2>
+<div class="datetime-inputs">
+<input type="date" id="d2tsDate">
+<input type="time" id="d2tsTime" step="1">
+</div>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="date2ts('s')">秒级时间戳</button>
+<button class="btn btn-primary" onclick="date2ts('ms')">毫秒级时间戳</button>
+<button class="btn btn-secondary" onclick="setNow()">当前时间</button>
+</div>
+<div class="result" id="d2tsResult" style="display:none"></div>
+</div>
 </main>
+<div class="toast" id="toast"></div>
+<script>
+let currentUnit = 's';
+let timer;
+
+function pad(n){ return n < 10 ? '0'+n : n; }
+
+function formatDT(d){
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+}
+
+function formatDTFull(d){
+  const days = ['日','一','二','三','四','五','六'];
+  return formatDT(d)+' 星期'+days[d.getDay()];
+}
+
+function updateLive(){
+  const now = Date.now();
+  const el = document.getElementById('liveTs');
+  const unitEl = document.getElementById('liveUnit');
+  const dtEl = document.getElementById('liveDt');
+  if(currentUnit === 's'){
+    el.textContent = Math.floor(now/1000);
+    unitEl.textContent = '秒级（10位）';
+  } else {
+    el.textContent = now;
+    unitEl.textContent = '毫秒级（13位）';
+  }
+  dtEl.textContent = formatDTFull(new Date(now));
+}
+
+function setUnit(u){
+  currentUnit = u;
+  const btns = document.querySelectorAll('.toggle-row button');
+  btns.forEach(b => b.classList.remove('active'));
+  if(u === 's') btns[0].classList.add('active');
+  else btns[1].classList.add('active');
+  updateLive();
+}
+
+function ts2date(){
+  const input = document.getElementById('ts2dateInput').value.trim();
+  if(!input){ showToast('请输入时间戳'); return; }
+  let ts = parseInt(input, 10);
+  if(isNaN(ts)){ showToast('无效的时间戳'); return; }
+  if(ts > 1e12) ts = ts;
+  else if(ts > 1e9) ts = ts * 1000;
+  else ts = ts * 1000;
+  const d = new Date(ts);
+  if(isNaN(d.getTime())){ showToast('无法解析该时间戳'); return; }
+  const el = document.getElementById('ts2dateResult');
+  el.style.display = 'block';
+  el.innerHTML = '<strong>本地时间：</strong>'+formatDTFull(d)+'<br><strong>UTC时间：</strong>'+d.toUTCString()+'<br><strong>ISO 8601：</strong>'+d.toISOString();
+}
+
+function date2ts(unit){
+  const dateVal = document.getElementById('d2tsDate').value;
+  const timeVal = document.getElementById('d2tsTime').value || '00:00:00';
+  if(!dateVal){ showToast('请选择日期'); return; }
+  const d = new Date(dateVal+'T'+timeVal);
+  if(isNaN(d.getTime())){ showToast('无效的日期时间'); return; }
+  const ts = unit === 's' ? Math.floor(d.getTime()/1000) : d.getTime();
+  const el = document.getElementById('d2tsResult');
+  el.style.display = 'block';
+  el.innerHTML = '<strong>'+(unit==='s'?'秒级':'毫秒级')+'时间戳：</strong>'+ts;
+}
+
+function setNow(){
+  const now = new Date();
+  document.getElementById('d2tsDate').value = now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate());
+  document.getElementById('d2tsTime').value = pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 2000);
+}
+
+document.getElementById('liveTs').addEventListener('click', function(){
+  const text = this.textContent;
+  navigator.clipboard.writeText(text).then(()=> showToast('已复制：'+text));
+});
+
+timer = setInterval(updateLive, 200);
+updateLive();
+setNow();
+</script>
 </body>
 </html>

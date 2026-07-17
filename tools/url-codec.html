@@ -6,36 +6,118 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>URL编解码 - 万能工具箱</title>
 <style>
-:root{--bg:#f5f7fa;--bg2:#ffffff;--ink:#1a1a2e;--muted:#6b7280;--rule:#e5e7eb;--accent:#4f46e5;--accent2:#06b6d4}
+:root{--bg:#f5f7fa;--bg2:#fff;--ink:#1a1a2e;--muted:#6b7280;--rule:#e5e7eb;--accent:#4f46e5;--accent2:#06b6d4}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
-header{background:var(--bg2);border-bottom:1px solid var(--rule);padding:0 24px;height:56px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-header a{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-size:18px;font-weight:600}
-header svg{width:32px;height:32px;flex-shrink:0}
-main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
-.card{text-align:center;max-width:420px;width:100%}
-.card .icon{font-size:64px;margin-bottom:24px}
-.card h1{font-size:28px;font-weight:700;margin-bottom:12px}
-.card p{color:var(--muted);font-size:16px;line-height:1.6;margin-bottom:32px}
-.btn{display:inline-block;padding:12px 28px;background:var(--accent);color:#fff;border-radius:8px;text-decoration:none;font-size:15px;font-weight:500;transition:background .2s}
-.btn:hover{background:#4338ca}
-@media(max-width:480px){.card h1{font-size:22px}.card .icon{font-size:48px}}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+header{background:var(--bg2);border-bottom:1px solid var(--rule);padding:12px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100}
+header a{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);font-weight:600;font-size:16px}
+header svg{width:28px;height:28px;flex-shrink:0}
+main{max-width:640px;margin:0 auto;padding:24px 16px}
+.card{background:var(--bg2);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card h2{font-size:15px;font-weight:600;margin-bottom:14px;color:var(--ink)}
+textarea{width:100%;min-height:140px;padding:12px;border:1px solid var(--rule);border-radius:8px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--ink);resize:vertical;outline:none;transition:border-color .2s;line-height:1.6}
+textarea:focus{border-color:var(--accent)}
+label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-top:10px;cursor:pointer;user-select:none}
+label input{accent-color:var(--accent)}
+.btn-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn{padding:10px 20px;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;flex:1;min-width:80px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{opacity:.9}
+.btn-secondary{background:var(--bg);color:var(--ink);border:1px solid var(--rule)}
+.btn-secondary:hover{background:var(--rule)}
+.btn-cyan{background:var(--accent2);color:#fff}
+.btn-cyan:hover{opacity:.9}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#333;color:#fff;padding:8px 20px;border-radius:8px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.stat{font-size:12px;color:var(--muted);margin-top:6px}
 </style>
 </head>
 <body>
 <header>
-  <a href="../index.html">
-    <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#4f46e5"/><path d="M8 12h4v4H8zm6 0h4v4h-4zm6 0h4v4h-4zM8 18h4v4H8zm6 0h4v4h-4zm6 0h4v4h-4z" fill="#fff"/></svg>
-    万能工具箱
-  </a>
+<a href="../index.html">
+<svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#4f46e5"/><path d="M8 12h4v4H8zm6 0h4v4h-4zm6 0h4v4h-4zM8 18h4v4H8zm6 0h4v4h-4zm6 0h4v4h-4z" fill="#fff"/></svg>
+万能工具箱
+</a>
 </header>
 <main>
-  <div class="card">
-    <div class="icon">🚀</div>
-    <h1>即将上线</h1>
-    <p>URL编解码该工具正在开发中，敬请期待...</p>
-    <a class="btn" href="../index.html">返回首页</a>
-  </div>
+<div class="card">
+<h2>输入文本或已编码的URL</h2>
+<textarea id="input" placeholder="在此输入需要编码或解码的文本...&#10;&#10;例如：https://example.com/搜索?q=你好世界&lang=中文&#10;或：%E4%BD%A0%E5%A5%BD%E4%B8%96%E7%95%8C"></textarea>
+<label><input type="checkbox" id="encodeComponent" checked> 使用 encodeURIComponent（编码保留URL结构）/ decodeURIComponent</label>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="doEncode()">编码</button>
+<button class="btn btn-cyan" onclick="doDecode()">解码</button>
+<button class="btn btn-secondary" onclick="doSwap()">互换</button>
+<button class="btn btn-secondary" onclick="doCopy()">复制结果</button>
+<button class="btn btn-secondary" onclick="doClear()">清空</button>
+</div>
+<div class="stat" id="stat"></div>
+</div>
+
+<div class="card">
+<h2>输出结果</h2>
+<textarea id="output" readonly placeholder="转换结果将显示在这里..."></textarea>
+</div>
 </main>
+<div class="toast" id="toast"></div>
+<script>
+function doEncode(){
+  const input = document.getElementById('input').value;
+  if(!input){ showToast('请输入内容'); return; }
+  const useComponent = document.getElementById('encodeComponent').checked;
+  try {
+    const result = useComponent ? encodeURIComponent(input) : encodeURI(input);
+    document.getElementById('output').value = result;
+    updateStat(result);
+  } catch(e){
+    showToast('编码失败：'+e.message);
+  }
+}
+
+function doDecode(){
+  const input = document.getElementById('input').value;
+  if(!input){ showToast('请输入内容'); return; }
+  const useComponent = document.getElementById('encodeComponent').checked;
+  try {
+    const result = useComponent ? decodeURIComponent(input) : decodeURI(input);
+    document.getElementById('output').value = result;
+    updateStat(result);
+  } catch(e){
+    showToast('解码失败：'+e.message);
+  }
+}
+
+function doSwap(){
+  const input = document.getElementById('input');
+  const output = document.getElementById('output');
+  const tmp = input.value;
+  input.value = output.value;
+  output.value = tmp;
+  updateStat(output.value);
+}
+
+function doCopy(){
+  const output = document.getElementById('output');
+  if(!output.value){ showToast('没有可复制的内容'); return; }
+  navigator.clipboard.writeText(output.value).then(()=> showToast('已复制到剪贴板'));
+}
+
+function doClear(){
+  document.getElementById('input').value = '';
+  document.getElementById('output').value = '';
+  document.getElementById('stat').textContent = '';
+}
+
+function updateStat(text){
+  document.getElementById('stat').textContent = '长度：'+text.length+' 字符';
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 2000);
+}
+</script>
 </body>
 </html>

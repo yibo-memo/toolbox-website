@@ -4,38 +4,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>HTTP状态码 - 万能工具箱</title>
+<title>HTTP状态码查询 - 万能工具箱</title>
 <style>
-:root{--bg:#f5f7fa;--bg2:#ffffff;--ink:#1a1a2e;--muted:#6b7280;--rule:#e5e7eb;--accent:#4f46e5;--accent2:#06b6d4}
+:root{--bg:#f5f7fa;--bg2:#fff;--ink:#1a1a2e;--muted:#6b7280;--rule:#e5e7eb;--accent:#4f46e5;--accent2:#06b6d4}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
-header{background:var(--bg2);border-bottom:1px solid var(--rule);padding:0 24px;height:56px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-header a{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-size:18px;font-weight:600}
-header svg{width:32px;height:32px;flex-shrink:0}
-main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
-.card{text-align:center;max-width:420px;width:100%}
-.card .icon{font-size:64px;margin-bottom:24px}
-.card h1{font-size:28px;font-weight:700;margin-bottom:12px}
-.card p{color:var(--muted);font-size:16px;line-height:1.6;margin-bottom:32px}
-.btn{display:inline-block;padding:12px 28px;background:var(--accent);color:#fff;border-radius:8px;text-decoration:none;font-size:15px;font-weight:500;transition:background .2s}
-.btn:hover{background:#4338ca}
-@media(max-width:480px){.card h1{font-size:22px}.card .icon{font-size:48px}}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+header{background:var(--bg2);border-bottom:1px solid var(--rule);padding:12px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100}
+header a{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);font-weight:600;font-size:16px}
+header svg{width:28px;height:28px;flex-shrink:0}
+main{max-width:720px;margin:0 auto;padding:24px 16px}
+.search-box{position:relative;margin-bottom:20px}
+.search-box input{width:100%;padding:12px 16px 12px 42px;border:1px solid var(--rule);border-radius:10px;font-size:14px;background:var(--bg2);color:var(--ink);outline:none;box-shadow:0 1px 3px rgba(0,0,0,.06);transition:border-color .2s}
+.search-box input:focus{border-color:var(--accent)}
+.search-box .icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;pointer-events:none}
+.category{margin-bottom:20px}
+.category h3{font-size:15px;font-weight:600;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--rule);display:flex;align-items:center;gap:8px}
+.category h3 .cat-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;color:#fff}
+.cat-1{background:#6366f1}
+.cat-2{background:#22c55e}
+.cat-3{background:#f59e0b}
+.cat-4{background:#ef4444}
+.cat-5{background:#8b5cf6}
+.code-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.code-item{background:var(--bg2);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px}
+.code-item:hover{border-color:var(--accent);box-shadow:0 1px 4px rgba(79,70,229,.12);transform:translateY(-1px)}
+.code-item .code{font-size:18px;font-weight:700;min-width:36px;color:var(--accent)}
+.code-item .desc{font-size:13px;color:var(--muted);line-height:1.4}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--bg2);border-radius:16px;padding:28px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.15);position:relative;animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal .close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1}
+.modal .close:hover{color:var(--ink)}
+.modal .modal-code{font-size:48px;font-weight:800;color:var(--accent)}
+.modal .modal-title{font-size:18px;font-weight:600;margin:8px 0 6px}
+.modal .modal-category{display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;font-weight:600;color:#fff;margin-bottom:12px}
+.modal .modal-desc{font-size:14px;line-height:1.7;color:var(--ink)}
+.hidden{display:none!important}
+.no-result{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
 </style>
 </head>
 <body>
 <header>
-  <a href="../index.html">
-    <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#4f46e5"/><path d="M8 12h4v4H8zm6 0h4v4h-4zm6 0h4v4h-4zM8 18h4v4H8zm6 0h4v4h-4zm6 0h4v4h-4z" fill="#fff"/></svg>
-    万能工具箱
-  </a>
+<a href="../index.html">
+<svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#4f46e5"/><path d="M8 12h4v4H8zm6 0h4v4h-4zm6 0h4v4h-4zM8 18h4v4H8zm6 0h4v4h-4zm6 0h4v4h-4z" fill="#fff"/></svg>
+万能工具箱
+</a>
 </header>
 <main>
-  <div class="card">
-    <div class="icon">🚀</div>
-    <h1>即将上线</h1>
-    <p>HTTP状态码该工具正在开发中，敬请期待...</p>
-    <a class="btn" href="../index.html">返回首页</a>
-  </div>
+<div class="search-box">
+<span class="icon">&#128269;</span>
+<input type="text" id="searchInput" placeholder="搜索状态码或描述，如 404、Not Found...">
+</div>
+<div id="codesContainer"></div>
+<div class="no-result hidden" id="noResult">没有找到匹配的状态码</div>
 </main>
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+<div class="modal" id="modal">
+<button class="close" onclick="closeModal()">&times;</button>
+<div class="modal-code" id="modalCode"></div>
+<div class="modal-title" id="modalTitle"></div>
+<div class="modal-category" id="modalCat"></div>
+<div class="modal-desc" id="modalDesc"></div>
+</div>
+</div>
+<script>
+const httpCodes = [
+  // 1xx 信息
+  {code:100, title:'Continue', category:'1xx', catLabel:'信息', desc:'服务器已收到请求的头部，客户端应继续发送请求体。通常用于大文件上传场景，客户端发送 Expect: 100-continue 头部后等待服务器确认。'},
+  {code:101, title:'Switching Protocols', category:'1xx', catLabel:'信息', desc:'服务器根据客户端的 Upgrade 请求头，正在切换到不同的协议。例如从 HTTP/1.1 切换到 HTTP/2 或 WebSocket。'},
+  {code:102, title:'Processing', category:'1xx', catLabel:'信息', desc:'服务器已收到请求并正在处理，但尚未完成处理。用于 WebDAV 场景，防止客户端因超时而认为请求失败。'},
+  {code:103, title:'Early Hints', category:'1xx', catLabel:'信息', desc:'用于在最终 HTTP 消息之前返回一些响应头，以便客户端可以提前开始准备资源（如预加载）。'},
+  // 2xx 成功
+  {code:200, title:'OK', category:'2xx', catLabel:'成功', desc:'请求成功。服务器已成功处理请求并返回了请求的数据。这是最常见的成功状态码，表示一切正常。'},
+  {code:201, title:'Created', category:'2xx', catLabel:'成功', desc:'请求已成功，并创建了新资源。通常用于 POST 请求创建新资源后返回，响应应包含 Location 头指向新资源的 URI。'},
+  {code:202, title:'Accepted', category:'2xx', catLabel:'成功', desc:'服务器已接受请求但尚未处理完成。这是一个非承诺性的响应，请求可能最终被处理，也可能被拒绝。常用于异步任务处理。'},
+  {code:204, title:'No Content', category:'2xx', catLabel:'成功', desc:'服务器成功处理了请求，但不需要返回任何内容。通常用于 DELETE 操作成功后，或 PUT 更新操作后。'},
+  {code:206, title:'Partial Content', category:'2xx', catLabel:'成功', desc:'服务器成功处理了部分 GET 请求。用于断点续传和分片下载场景，响应包含 Content-Range 头指定返回的数据范围。'},
+  {code:301, title:'Moved Permanently', category:'3xx', catLabel:'重定向', desc:'请求的资源已被永久移动到新的 URL。搜索引擎会更新其索引指向新的 URL。客户端应使用新的 URL 进行后续请求。'},
+  {code:302, title:'Found', category:'3xx', catLabel:'重定向', desc:'请求的资源临时移动到新的 URL。客户端应继续使用原来的 URL 进行后续请求。搜索引擎不会更新索引。'},
+  {code:304, title:'Not Modified', category:'3xx', catLabel:'重定向', desc:'资源未被修改。客户端的缓存仍然有效，服务器不会返回资源内容。用于条件 GET 请求（If-Modified-Since / If-None-Match）。'},
+  {code:307, title:'Temporary Redirect', category:'3xx', catLabel:'重定向', desc:'请求的资源临时移动到新的 URL，方法和请求体不变。与 302 不同，307 要求客户端在重定向时保持相同的 HTTP 方法和请求体。'},
+  {code:308, title:'Permanent Redirect', category:'3xx', catLabel:'重定向', desc:'请求的资源已被永久移动到新的 URL，方法和请求体不变。与 301 不同，308 要求客户端在重定向时保持相同的 HTTP 方法和请求体。'},
+  // 4xx 客户端错误
+  {code:400, title:'Bad Request', category:'4xx', catLabel:'客户端错误', desc:'服务器无法理解客户端的请求，因为请求语法有误。可能是请求参数格式不正确、JSON 解析失败或缺少必要的请求头。'},
+  {code:401, title:'Unauthorized', category:'4xx', catLabel:'客户端错误', desc:'请求需要用户认证。客户端应提供有效的认证凭据（如 Bearer Token、Basic Auth）。通常返回 WWW-Authenticate 头指示认证方式。'},
+  {code:403, title:'Forbidden', category:'4xx', catLabel:'客户端错误', desc:'服务器理解了请求，但拒绝执行。即使经过认证，客户端也没有权限访问该资源。与 401 不同，403 表示服务器已知用户身份但拒绝授权。'},
+  {code:404, title:'Not Found', category:'4xx', catLabel:'客户端错误', desc:'请求的资源不存在。服务器找不到与请求 URL 匹配的资源。这是最常见的客户端错误，也可能是路由配置错误导致。'},
+  {code:405, title:'Method Not Allowed', category:'4xx', catLabel:'客户端错误', desc:'请求方法不被允许。例如对某个资源使用 POST 方法但该资源只支持 GET。响应应包含 Allow 头列出支持的方法。'},
+  {code:408, title:'Request Timeout', category:'4xx', catLabel:'客户端错误', desc:'服务器等待客户端发送请求的时间过长，超时关闭了连接。客户端应重新发送请求且不修改请求内容。'},
+  {code:409, title:'Conflict', category:'4xx', catLabel:'客户端错误', desc:'请求与服务器当前状态冲突。例如尝试创建已存在的资源、版本冲突等。响应应包含冲突的详细信息以便客户端解决。'},
+  {code:410, title:'Gone', category:'4xx', catLabel:'客户端错误', desc:'请求的资源已被永久删除，不再可用。与 404 不同，410 表示资源曾经存在但已被有意删除。'},
+  {code:413, title:'Payload Too Large', category:'4xx', catLabel:'客户端错误', desc:'请求体过大，服务器拒绝处理。通常用于文件上传限制。客户端应在减小请求体大小后重试。'},
+  {code:414, title:'URI Too Long', category:'4xx', catLabel:'客户端错误', desc:'请求的 URL 过长，服务器无法处理。通常由于 GET 请求中携带了过多的查询参数导致。'},
+  {code:415, title:'Unsupported Media Type', category:'4xx', catLabel:'客户端错误', desc:'服务器不支持请求中提交的媒体类型（Content-Type）。例如发送 XML 但服务器期望 JSON。'},
+  {code:422, title:'Unprocessable Entity', category:'4xx', catLabel:'客户端错误', desc:'请求格式正确但语义错误，服务器无法处理。常用于表单验证失败场景（WebDAV 扩展状态码）。'},
+  {code:429, title:'Too Many Requests', category:'4xx', catLabel:'客户端错误', desc:'客户端在给定时间内发送了太多请求，超出了速率限制。响应应包含 Retry-After 头指示何时可以重试。'},
+  {code:451, title:'Unavailable For Legal Reasons', category:'4xx', catLabel:'客户端错误', desc:'由于法律原因（如政府审查、版权投诉），资源不可访问。响应应包含指向相关法律或政策文档的链接。'},
+  // 5xx 服务端错误
+  {code:500, title:'Internal Server Error', category:'5xx', catLabel:'服务端错误', desc:'服务器遇到了意外情况，无法完成请求处理。这是最常见的服务端错误码，表示服务器内部程序出现了异常。'},
+  {code:502, title:'Bad Gateway', category:'5xx', catLabel:'服务端错误', desc:'网关或代理服务器从上游服务器接收到了无效的响应。通常表示反向代理（如 Nginx）无法从后端服务（如 Node.js/PHP）获取有效响应。'},
+  {code:503, title:'Service Unavailable', category:'5xx', catLabel:'服务端错误', desc:'服务器暂时无法处理请求，通常由于维护或过载导致。响应应包含 Retry-After 头。这是一个临时状态，客户端可以稍后重试。'},
+  {code:504, title:'Gateway Timeout', category:'5xx', catLabel:'服务端错误', desc:'网关或代理服务器没有及时从上游服务器接收到响应。通常表示后端服务处理时间过长，代理服务器等待超时。'},
+  {code:505, title:'HTTP Version Not Supported', category:'5xx', catLabel:'服务端错误', desc:'服务器不支持请求中使用的 HTTP 版本。例如客户端使用 HTTP/2 但服务器只支持 HTTP/1.1。'}
+];
+
+const categories = [
+  {id:'1xx', label:'1xx 信息响应', css:'cat-1'},
+  {id:'2xx', label:'2xx 成功响应', css:'cat-2'},
+  {id:'3xx', label:'3xx 重定向', css:'cat-3'},
+  {id:'4xx', label:'4xx 客户端错误', css:'cat-4'},
+  {id:'5xx', label:'5xx 服务端错误', css:'cat-5'}
+];
+
+function renderCodes(filter){
+  const container = document.getElementById('codesContainer');
+  const noResult = document.getElementById('noResult');
+  const query = (filter || '').toLowerCase().trim();
+  container.innerHTML = '';
+  let hasResult = false;
+
+  categories.forEach(cat => {
+    const items = httpCodes.filter(c => c.category === cat.id && (
+      !query || 
+      String(c.code).includes(query) || 
+      c.title.toLowerCase().includes(query) || 
+      c.desc.includes(query) ||
+      c.catLabel.includes(query)
+    ));
+    if(items.length === 0) return;
+    hasResult = true;
+    const section = document.createElement('div');
+    section.className = 'category';
+    section.innerHTML = '<h3><span class="cat-tag '+cat.css+'">'+cat.id+'</span>'+cat.label+'</h3>';
+    const list = document.createElement('div');
+    list.className = 'code-list';
+    items.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'code-item';
+      div.innerHTML = '<span class="code">'+item.code+'</span><span class="desc">'+item.title+'</span>';
+      div.onclick = ()=> showModal(item);
+      list.appendChild(div);
+    });
+    section.appendChild(list);
+    container.appendChild(section);
+  });
+
+  noResult.classList.toggle('hidden', hasResult);
+}
+
+function showModal(item){
+  document.getElementById('modalCode').textContent = item.code;
+  document.getElementById('modalTitle').textContent = item.title;
+  const catEl = document.getElementById('modalCat');
+  const catObj = categories.find(c=> c.id === item.category);
+  catEl.textContent = catObj ? catObj.label : '';
+  catEl.className = 'modal-category ' + (catObj ? catObj.css : '');
+  document.getElementById('modalDesc').textContent = item.desc;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal(e){
+  if(e && e.target !== document.getElementById('modalOverlay')) return;
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+document.getElementById('searchInput').addEventListener('input', function(){
+  renderCodes(this.value);
+});
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    document.getElementById('modalOverlay').classList.remove('show');
+  }
+});
+
+renderCodes();
+</script>
 </body>
 </html>
